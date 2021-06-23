@@ -1,6 +1,12 @@
+ecdsa==0.17.0
 fastapi==0.65.2
 greenlet==1.1.0
+passlib==1.7.4
+pyasn1==0.4.8
 pydantic==1.8.2
+python-jose==3.3.0
+rsa==4.7.2
+six==1.16.0
 SQLAlchemy==1.4.18
 starlette==0.14.2
 typing-extensions==3.10.0.0
