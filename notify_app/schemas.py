@@ -8,7 +8,7 @@ class User(BaseModel):
     email: Optional[EmailStr] = None
 
 
-class UserDB(BaseModel):
+class UserDB(User):
     id: int
 
 
