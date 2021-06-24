@@ -3,7 +3,7 @@ from random import randint
 
 import pytz
 
-from notify_app.schemas import User
+from notify_app.schemas import UserDBSchema
 
 
 # Создать псевдо-таблицу пользователей
@@ -19,7 +19,7 @@ def get_random_timezone() -> str:
 
 
 _USERS = [
-    User(
+    UserDBSchema(
         id=i,
         name=f'User #{i}',
         email='max.belichenko@mail.ru',
