@@ -1,16 +1,30 @@
 from copy import deepcopy
+from random import randint
+
+import pytz
 
 from notify_app.schemas import User
 
 
 # Создать псевдо-таблицу пользователей
 
+def get_random_timezone() -> str:
+    """
+    Возвращает произвольную таймзону в текстовом формате
+    :return:    Example: "Europe/Moscow"
+    """
+    timezone_count = len(pytz.all_timezones)
+    timezone = pytz.all_timezones[randint(0, timezone_count-1)]
+    return timezone
+
+
 _USERS = [
     User(
         id=i,
         name=f'User #{i}',
         email='max.belichenko@mail.ru',
-        phone='79123456789'
+        phone='79123456789',
+        timezone=get_random_timezone()
     )
     for i in range(3)
 ]

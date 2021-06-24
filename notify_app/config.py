@@ -11,3 +11,8 @@ SMTP_SERVER_PORT = 465
 SMTP_USER = '*'
 SMTP_PASSWORD = '*'
 SMTP_FROM_ADDRESS = '*'
+
+
+# Database configuration
+
+DB_CONNECTION_URL = 'sqlite:///./notify_app.db'
