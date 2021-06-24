@@ -18,18 +18,19 @@ dramatiq.set_broker(redis_broker)
 
 
 @dramatiq.actor
-def send_by_email(address: str, message: str):
+def send_by_email(address: str, message: str, subject: str = ''):
     """
     Отправляет сообщение на указанный e-mail.
 
     :param address: E-mail получателя
+    :param subject: Тема сообщения
     :param message: Сообщение
     :return:    "OK"    - В случае успешной отправки
                 SMTPException - В случае ошибки
     """
     result = 'OK'
     try:
-        utils.send_email.send_text_message(recipient=address, message=message)
+        utils.send_email.send_text_message(recipient=address, message=message, subject=subject)
     except SMTPException as e:
         result = e
 
