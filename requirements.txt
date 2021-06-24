@@ -2,5 +2,6 @@ dramatiq==1.11.0
 fastapi==0.65.2
 prometheus-client==0.11.0
 pydantic==1.8.2
+redis==3.5.3
 starlette==0.14.2
 typing-extensions==3.10.0.0
