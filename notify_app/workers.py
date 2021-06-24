@@ -6,7 +6,7 @@ from dramatiq.results import Results
 from smtplib import SMTPException
 
 from notify_app import config
-from notify_app import utils
+from notify_app.utils import send_email
 
 
 # Set up Dramatiq
@@ -30,7 +30,7 @@ def send_by_email(address: str, message: str, subject: str = ''):
     """
     result = 'OK'
     try:
-        utils.send_email.send_text_message(recipient=address, message=message, subject=subject)
+        send_email.send_text_message(recipient=address, message=message, subject=subject)
     except SMTPException as e:
         result = e
 

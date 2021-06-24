@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from notify_app import schemas, workers, mock
-
+from notify_app import schemas, workers
+from notify_app.mock import users
 
 app = FastAPI()
 
@@ -18,8 +18,8 @@ def start_dramatiq_action(message: schemas.Message):
         }
     :return:
     """
-    users = mock.users.get_user_list()
+    user_list = users.get_user_list()
 
-    for user in users:
+    for user in user_list:
         if user.email:
             workers.send_by_email(address=user.email, message=message.text, subject=message.subject)
