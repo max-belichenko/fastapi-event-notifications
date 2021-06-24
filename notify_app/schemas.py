@@ -3,13 +3,20 @@ from typing import Optional
 
 
 class User(BaseModel):
-    id: int
     name: str
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
 
 
-class Message(BaseModel):
+class UserDB(BaseModel):
     id: int
+
+
+class Message(BaseModel):
     subject: Optional[str] = ''
     text: str
+
+
+class MessageDB(Message):
+    id: int
+

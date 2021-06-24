@@ -134,3 +134,4 @@ dmypy.json
 /task.txt
 /notify_app/deprecated/*
 /notify_app/config_production.py
+/start_fastapi_production.sh
