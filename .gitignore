@@ -127,4 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# Custom ignore
+
 /task.txt
+/notify_app/deprecated/*
