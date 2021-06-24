@@ -133,3 +133,4 @@ dmypy.json
 
 /task.txt
 /notify_app/deprecated/*
+/notify_app/config_production.py
