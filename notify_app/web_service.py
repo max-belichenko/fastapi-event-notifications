@@ -4,7 +4,7 @@ from apscheduler.triggers.date import DateTrigger
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 
-import pytz
+import logging
 
 from notify_app import schemas, workers, config
 from notify_app.crud import create_message
@@ -42,6 +42,8 @@ def get_db():
 
 # Создать и настроить логгер
 
+logging.basicConfig()
+logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 # TESTING SCHEDULER
 def send(*args, **kwargs):
@@ -64,8 +66,6 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
         }
     :return:
     """
-    print(f'Received task to send message at {type(message.send_date)}{message.send_date}')
-
     # Записать сообщение в базу данных
 
     create_message(db=db, message=message)  # ASYNC
@@ -84,11 +84,10 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
     for user in user_list:
         if not user.email:
             continue
-        print(f'Adding job to send message for {user.name} at {message.send_date}...')
+
         scheduler.add_job(
             send,
             'date',     # Schedules a job at specified datetime
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
         )
-        print('Job added')
