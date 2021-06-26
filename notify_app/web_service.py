@@ -44,22 +44,8 @@ def get_db():
 
 
 # TESTING SCHEDULER
-@dramatiq.actor
-def send_by_email(address: str, message: str, subject: str = ''):
-    """
-    Отправляет сообщение на указанный e-mail.
-
-    В случае возникновения исключения - повторяет отправку.
-    (настройка повторной отправки производится с помощью модуля dramatiq.middleware.retries)
-
-    :param address: E-mail получателя
-    :param subject: Тема сообщения
-    :param message: Сообщение
-    :return:
-    """
-    print(f'Sendinng message "{subject}" to {address}...')
-    send_email.send_text_message(recipient=address, message=message, subject=subject)
-    print(f'Message "{subject}" to {address} has been sent.')
+def send(*args, **kwargs):
+    workers.send_by_email.send(*args, **kwargs)
 
 
 # API endpoints
@@ -100,7 +86,7 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
             continue
 
         scheduler.add_job(
-            send_by_email.send,
+            send,
             'date',     # Schedules a job at specified datetime
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
