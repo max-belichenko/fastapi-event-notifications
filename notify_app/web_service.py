@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 import pytz
 
+from notify_app.workers import send_by_email
 from notify_app import schemas, workers, config
 from notify_app.mock import users
 from notify_app.database import Base, engine, SessionLocal
@@ -79,7 +80,7 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
             continue
 
         scheduler.add_job(
-            workers.send_by_email.send,
+            send_by_email.send,
             'date',     # Schedules a job at specified datetime
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
