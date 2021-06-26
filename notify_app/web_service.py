@@ -79,6 +79,8 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
             continue
 
         scheduler.add_job(
-            workers.send_by_email.send(address=user.email, message=message.text, subject=f'{message.subject} for {user.name}'),
-            DateTrigger(run_date=message.send_date),
+            workers.send_by_email.send,
+            'date',     # Schedules a job at specified datetime
+            run_date=message.send_date,
+            args=(user.email, message.text, f'{message.subject} for {user.name}'),
         )
