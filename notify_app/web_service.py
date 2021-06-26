@@ -1,12 +1,25 @@
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.date import DateTrigger
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 
-from notify_app import schemas, workers
+import pytz
+
+from notify_app import schemas, workers, config
 from notify_app.mock import users
 from notify_app.database import Base, engine, SessionLocal
 from notify_app.crud import create_message
 
+
+# Создать приложение FastAPI
+
 app = FastAPI()
+
+
+# Создать, настроить и запустить планировщик APScheduler
+
+scheduler = BackgroundScheduler(**config.SCHEDULER_CONFIG)
+scheduler.start()
 
 
 # Создать базу данных и структуру таблиц (без миграций)
@@ -25,6 +38,11 @@ def get_db():
         db.close()
 
 
+# Создать и настроить логгер
+
+
+# API endpoints
+
 @app.post('/send_message/')
 def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(get_db)):
     """
@@ -39,6 +57,7 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
         }
     :return:
     """
+    print(f'Received task to send message at {type(message.send_date)}{message.send_date}')
 
     # Записать сообщение в базу данных
 
@@ -51,6 +70,15 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
     # Разослать сообщение пользователям
     # С УЧЁТОМ: 1. ДАТЫ НАЧАЛА РАССЫЛКИ 2. ТАЙМЗОНЫ ПОЛЬЗОВАТЕЛЯ
 
+    # for user in user_list:
+    #     if user.email:
+    #         workers.send_by_email.send(address=user.email, message=message.text, subject=f'{message.subject} for {user.name}')
+
     for user in user_list:
-        if user.email:
-            workers.send_by_email.send(address=user.email, message=message.text, subject=message.subject)
+        if not user.email:
+            continue
+
+        # scheduler.add_job(
+        #     workers.send_by_email.send(address=user.email, message=message.text, subject=f'{message.subject} for {user.name}'),
+        #     DateTrigger.from_crontab("* * * * *"),
+        # )
