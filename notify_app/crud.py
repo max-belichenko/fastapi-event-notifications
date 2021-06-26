@@ -4,7 +4,7 @@ from notify_app.models import Message
 from notify_app.schemas import MessageSchema
 
 
-def create_message(db: Session, message: MessageSchema):
+async def create_message(db: Session, message: MessageSchema):
     """
     Создаёт запись о сообщении в базе данных.
 
