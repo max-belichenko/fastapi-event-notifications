@@ -53,5 +53,4 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
 
     for user in user_list:
         if user.email:
-            # ASYNC
-            workers.send_by_email(address=user.email, message=message.text, subject=message.subject)
+            workers.send_by_email.send(address=user.email, message=message.text, subject=message.subject)
