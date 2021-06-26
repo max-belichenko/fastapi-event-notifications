@@ -18,7 +18,7 @@ class UserDBSchema(UserSchema):
 class MessageSchema(BaseModel):
     subject: Optional[str] = ''             # Тема сообщения
     text: str                               # Текст сообщения
-    send_date: Optional[datetime] = None    # Дата и время отправки (не ранее)
+    send_date: Optional[datetime.datetime] = None    # Дата и время отправки (не ранее)
 
 
 class MessageDBSchema(MessageSchema):
