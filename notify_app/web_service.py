@@ -61,7 +61,7 @@ def get_db():
 # API endpoints
 
 @app.post('/send_message/')
-def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(get_db)):
+async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(get_db)):
     """
     URI, предоставляющий функционал для рассылки сообщения.
 
@@ -76,7 +76,7 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
     """
     # Записать сообщение в базу данных
 
-    create_message(db=db, message=message)  # ASYNC
+    await create_message(db=db, message=message)
 
     # Получить список пользователей для рассылки
 
@@ -95,8 +95,8 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
 
         scheduler.add_job(
             send_by_email_callable,
-            'date',     # Schedules a job at specified datetime
+            'date',                     # Запустить выполнение в указанное время и дату
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
-            misfire_grace_time=None,
+            misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
         )
