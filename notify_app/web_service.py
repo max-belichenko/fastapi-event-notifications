@@ -84,10 +84,11 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
     for user in user_list:
         if not user.email:
             continue
-
+        print(f'Adding job to send message for {user.name} at {message.send_date}...')
         scheduler.add_job(
             send,
             'date',     # Schedules a job at specified datetime
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
         )
+        print('Job added')
