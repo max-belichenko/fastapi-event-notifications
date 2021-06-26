@@ -17,24 +17,20 @@ redis_broker.add_middleware(Results(backend=result_backend))
 dramatiq.set_broker(redis_broker)
 
 
-@dramatiq.actor
+@dramatiq.actor     # (retry_when=lambda exception: isinstance(exception, SMTPException))
 def send_by_email(address: str, message: str, subject: str = ''):
     """
     Отправляет сообщение на указанный e-mail.
 
+    В случае ошибки на уровне SMTP - повторяет отправку
+    (настройка повторной отправки производится с помощью модуля dramatiq.middleware.retries)
+
     :param address: E-mail получателя
     :param subject: Тема сообщения
     :param message: Сообщение
-    :return:    "OK"    - В случае успешной отправки
-                SMTPException - В случае ошибки
+    :return:
     """
-    result = 'OK'
-    try:
-        send_email.send_text_message(recipient=address, message=message, subject=subject)
-    except SMTPException as e:
-        result = e
-
-    return result
+    send_email.send_text_message(recipient=address, message=message, subject=subject)
 
 
 @dramatiq.actor
