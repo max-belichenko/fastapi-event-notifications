@@ -13,6 +13,12 @@ from notify_app.database import Base, engine, SessionLocal
 from notify_app.utils import send_email
 
 
+# Создать и настроить логгер
+
+logging.basicConfig()
+logging.getLogger('apscheduler').setLevel(logging.DEBUG)
+
+
 # Создать приложение FastAPI
 
 app = FastAPI()
@@ -22,6 +28,18 @@ app = FastAPI()
 
 scheduler = BackgroundScheduler(**config.SCHEDULER_CONFIG)
 scheduler.start()
+
+
+# Создать глобальный сериализуемый запускаемый объект для планировщика APScheduler
+
+def send_by_email_callable(*args, **kwargs):
+    """
+    Запускает
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    workers.send_by_email.send(*args, **kwargs)
 
 
 # Создать базу данных и структуру таблиц (без миграций)
@@ -38,16 +56,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-# Создать и настроить логгер
-
-logging.basicConfig()
-logging.getLogger('apscheduler').setLevel(logging.DEBUG)
-
-# TESTING SCHEDULER
-def send(*args, **kwargs):
-    workers.send_by_email.send(*args, **kwargs)
 
 
 # API endpoints
@@ -86,8 +94,9 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
             continue
 
         scheduler.add_job(
-            send,
+            send_by_email_callable,
             'date',     # Schedules a job at specified datetime
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
+            misfire_grace_time=None,
         )
