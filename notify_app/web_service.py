@@ -1,3 +1,4 @@
+import dramatiq
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from fastapi import FastAPI, Depends
@@ -5,11 +6,11 @@ from sqlalchemy.orm import Session
 
 import pytz
 
-from notify_app.workers import send_by_email
 from notify_app import schemas, workers, config
+from notify_app.crud import create_message
 from notify_app.mock import users
 from notify_app.database import Base, engine, SessionLocal
-from notify_app.crud import create_message
+from notify_app.utils import send_email
 
 
 # Создать приложение FastAPI
@@ -40,6 +41,25 @@ def get_db():
 
 
 # Создать и настроить логгер
+
+
+# TESTING SCHEDULER
+@dramatiq.actor
+def send_by_email(address: str, message: str, subject: str = ''):
+    """
+    Отправляет сообщение на указанный e-mail.
+
+    В случае возникновения исключения - повторяет отправку.
+    (настройка повторной отправки производится с помощью модуля dramatiq.middleware.retries)
+
+    :param address: E-mail получателя
+    :param subject: Тема сообщения
+    :param message: Сообщение
+    :return:
+    """
+    print(f'Sendinng message "{subject}" to {address}...')
+    send_email.send_text_message(recipient=address, message=message, subject=subject)
+    print(f'Message "{subject}" to {address} has been sent.')
 
 
 # API endpoints
@@ -80,7 +100,7 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
             continue
 
         scheduler.add_job(
-            'send_by_email.send',
+            send_by_email.send,
             'date',     # Schedules a job at specified datetime
             run_date=message.send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
