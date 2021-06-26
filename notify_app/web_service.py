@@ -78,7 +78,7 @@ def start_dramatiq_action(message: schemas.MessageSchema, db: Session = Depends(
         if not user.email:
             continue
 
-        # scheduler.add_job(
-        #     workers.send_by_email.send(address=user.email, message=message.text, subject=f'{message.subject} for {user.name}'),
-        #     DateTrigger.from_crontab("* * * * *"),
-        # )
+        scheduler.add_job(
+            workers.send_by_email.send(address=user.email, message=message.text, subject=f'{message.subject} for {user.name}'),
+            DateTrigger(run_date=message.send_date),
+        )
