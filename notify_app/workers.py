@@ -56,4 +56,5 @@ def send_web_notification(webscokets: ConnectionManager, subject: str, text: str
     :param message: Сообщение
     :return:
     """
+    print('Broadcasting to websockets...')
     webscokets.broadcast(f'"{subject}": "{text}"')
