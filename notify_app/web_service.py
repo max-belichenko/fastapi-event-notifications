@@ -3,8 +3,6 @@ from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
-import logging
-
 from notify_app import schemas, workers, config
 from notify_app.crud import create_message
 from notify_app.mock import users, html
@@ -15,9 +13,6 @@ from notify_app.utils import websockets
 
 
 # Создать и настроить логгер
-
-# logging.basicConfig()
-# logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 logger = app_logger.get_logger(__name__)
 
