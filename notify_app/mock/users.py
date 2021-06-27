@@ -28,7 +28,33 @@ _USERS = [
     )
     for i in range(3)
 ]
-
+_USERS.append(
+    UserDBSchema(
+        id=4,
+        name=f'Max from Miami',
+        email='max.belichenko@mail.ru',
+        phone='79123456789',
+        timezone='US/Pacific'
+    )
+)
+_USERS.append(
+    UserDBSchema(
+        id=5,
+        name=f'Denis from London',
+        email='max.belichenko@mail.ru',
+        phone='79123456789',
+        timezone='Europe/London'
+    )
+)
+_USERS.append(
+    UserDBSchema(
+        id=6,
+        name=f'Konstantin from Vladik',
+        email='max.belichenko@mail.ru',
+        phone='79123456789',
+        timezone='Asia/Vladivostok'
+    )
+)
 
 def get_user_list():
     """
