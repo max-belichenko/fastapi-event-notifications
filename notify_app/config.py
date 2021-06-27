@@ -57,3 +57,9 @@ SCHEDULER_CONFIG = {
     },
     # 'timezone': pytz.utc,   # Use UTC timezones for scheduling
 }
+
+
+# Logger config
+
+LOG_FORMAT = f"%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
+LOG_FILENAME = 'notify_app.log'
