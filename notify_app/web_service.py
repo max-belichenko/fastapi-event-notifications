@@ -1,15 +1,13 @@
-import dramatiq
-import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.date import DateTrigger
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, WebSocket
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 import logging
 
 from notify_app import schemas, workers, config
 from notify_app.crud import create_message
-from notify_app.mock import users
+from notify_app.mock import users, html
 from notify_app.database import Base, engine, SessionLocal
 from notify_app.utils.sending_time import get_send_dt_for_user, add_timezone_if_empty
 
@@ -84,26 +82,41 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
     user_list = users.get_user_list()
 
     # Разослать сообщение пользователям
-    # С УЧЁТОМ: 1. ДАТЫ НАЧАЛА РАССЫЛКИ 2. ТАЙМЗОНЫ ПОЛЬЗОВАТЕЛЯ
-
-    # for user in user_list:
-    #     if user.email:
-    #         workers.send_by_email.send(address=user.email, message=message.text, subject=f'{message.subject} for {user.name}')
 
     for user in user_list:
-        if not user.email:
-            continue
 
-        send_date = get_send_dt_for_user(
-            send_date=add_timezone_if_empty(message.send_date, config.SERVER_TIMEZONE_STR),
-            user_timezone=user.timezone,
-            allowed_period=config.SEND_ALLOWED_PERIOD
-        )
+        # Отправить сообщение на E-mail
 
-        scheduler.add_job(
-            send_by_email_callable,
-            'date',                     # Запустить выполнение в указанное время и дату
-            run_date=send_date,
-            args=(user.email, message.text, f'{message.subject} for {user.name}'),
-            misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
-        )
+        if user.email:
+            send_date = get_send_dt_for_user(
+                send_date=add_timezone_if_empty(message.send_date, config.SERVER_TIMEZONE_STR),
+                user_timezone=user.timezone,
+                allowed_period=config.SEND_ALLOWED_PERIOD
+            )
+
+            scheduler.add_job(
+                send_by_email_callable,
+                'date',                     # Запустить выполнение в указанное время и дату
+                run_date=send_date,
+                args=(user.email, message.text, f'{message.subject} for {user.name}'),
+                misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
+            )
+
+        # Отправить сообщение на телефон
+
+        if user.phone:
+            # Not implemented
+            pass
+
+
+@app.get('/')
+async def get():
+    return HTMLResponse(html.index_html)
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")

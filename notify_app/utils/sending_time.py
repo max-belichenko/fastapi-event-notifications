@@ -36,7 +36,7 @@ def get_send_dt_for_user(send_date, user_timezone, allowed_period: Tuple[datetim
                             ((9, 0), (2021, 06, 26, 21, 0))
     :return:                <datetime.datetime> - Дата и время отправки, соответствующие разрешённому интервалу
     """
-    print('Устанавливаю время отправки в соответсвии с разрешённым временным интервалом:')
+    
     # Проверить, установлена ли временная зона для даты и времени запланированной отправки сообщения
 
     if send_date.tzinfo is None or send_date.tzinfo.utcoffset(send_date) is None:
@@ -48,7 +48,6 @@ def get_send_dt_for_user(send_date, user_timezone, allowed_period: Tuple[datetim
 
     try:
         user_tz = pytz.timezone(user_timezone)
-        print(f'Определена временная зона пользователя: {user_tz}')
     except pytz.exceptions.UnknownTimeZoneError as e:
         raise ValueError(f'Error! Unknown user timezone provided: "{user_timezone}"\n'
                          f'You can see the list of timezones by calling pytz.all_timezones')
@@ -56,7 +55,6 @@ def get_send_dt_for_user(send_date, user_timezone, allowed_period: Tuple[datetim
     # Получить время отправки, локализированные для временной зоны пользователя
 
     user_dt = send_date.astimezone(user_tz)
-    print(f'Определено локальное время отправки: {user_dt}')
 
     # Установить время отправки сообщения в соответствии с разрешённым временным интервалом
 
@@ -65,16 +63,13 @@ def get_send_dt_for_user(send_date, user_timezone, allowed_period: Tuple[datetim
             hour=allowed_period[0].hour,
             minute=0
         ).astimezone(send_date.tzinfo)
-        print('Время отправки ранее разрешённого временного интервала')
     elif user_dt.time() > allowed_period[1]:
         send_dt_for_user = user_dt.replace(
             day=user_dt.day+1,
             hour=allowed_period[0].hour,
             minute=0
         ).astimezone(send_date.tzinfo)
-        print('Время отправки позднее разрешённого временного интервала')
     else:
         send_dt_for_user = send_date
 
-    print(f'Новое время отправки на сервере: {send_dt_for_user}')
     return send_dt_for_user
