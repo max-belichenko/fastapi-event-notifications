@@ -24,5 +24,5 @@ def send_text_message(recipient: str, subject: str = '', message: str = ''):
 
     connection = smtplib.SMTP_SSL(host=config.SMTP_SERVER_HOSTNAME, port=config.SMTP_SERVER_PORT)
     connection.login(user=config.SMTP_USER, password=config.SMTP_PASSWORD)
-    connection.sendmail(from_addr=from_address, to_addrs=recipient, msg=msg)
+    connection.sendmail(from_addr=from_address, to_addrs=recipient, msg=msg.encode('utf-8'))
     connection.quit()
