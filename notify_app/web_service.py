@@ -10,6 +10,7 @@ from notify_app.crud import create_message
 from notify_app.mock import users, html
 from notify_app.database import Base, engine, SessionLocal
 from notify_app.utils.sending_time import get_send_dt_for_user, add_timezone_if_empty
+from notify_app.utils import websockets
 
 
 # Создать и настроить логгер
@@ -21,6 +22,10 @@ logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 # Создать приложение FastAPI
 
 app = FastAPI()
+
+# Создать менеджер управления соединениями WebSockets
+
+websockets_manager = websockets.ConnectionManager()
 
 
 # Создать, настроить и запустить планировщик APScheduler
@@ -81,7 +86,7 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
 
     user_list = users.get_user_list()
 
-    # Разослать сообщение пользователям
+    # Разослать сообщение пользователям из базы данных
 
     for user in user_list:
 
@@ -108,6 +113,10 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
             # Not implemented
             pass
 
+    # Разослать сообщения пользователям через WebSockets
+
+    await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
+
 
 @app.get('/')
 async def get():
@@ -120,3 +129,17 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_text()
         await websocket.send_text(f"Message text was: {data}")
+
+
+@app.websocket("/ws2")
+async def websocket_endpoint(websocket: WebSocket):
+    await websockets_manager.connect(websocket)
+    await websockets_manager.broadcast('New client joined the chat')
+    # try:
+    #     while True:
+    #         data = await websocket.receive_text()
+    #         await manager.send_personal_message(f"You wrote: {data}", websocket)
+    #         await manager.broadcast(f"Client #{client_id} says: {data}")
+    # except WebSocketDisconnect:
+    #     manager.disconnect(websocket)
+    #     await manager.broadcast(f"Client #{client_id} left the chat")
