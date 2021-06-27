@@ -1,4 +1,7 @@
-index_html = """
+from notify_app import config
+
+
+index_html = r"""
 <!DOCTYPE html>
 <html>
     <head>
@@ -13,7 +16,7 @@ index_html = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://10.1.20.49:8000/ws");
+            var ws = new WebSocket("ws://%s:%s/%s");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -30,4 +33,4 @@ index_html = """
         </script>
     </body>
 </html>
-"""
+""" % (config.WEBSOCKET_SERVER, config.WEBSOCKET_PORT, config.WEBSOCKET_URL)

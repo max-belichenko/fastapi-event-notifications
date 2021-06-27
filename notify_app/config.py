@@ -14,6 +14,13 @@ SEND_ALLOWED_PERIOD = (
 )
 
 
+# WebSocket configuration
+
+WEBSOCKET_SERVER = '*'
+WEBSOCKET_PORT = '*'
+WEBSOCKET_URL = 'ws'
+
+
 # Redis server configuration
 
 REDIS_HOST = "*"

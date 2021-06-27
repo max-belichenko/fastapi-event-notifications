@@ -6,6 +6,7 @@ from dramatiq.results import Results
 
 from notify_app import config
 from notify_app.utils import send_email
+from notify_app.utils.websockets import ConnectionManager
 
 
 # Set up Dramatiq
@@ -29,9 +30,7 @@ def send_by_email(address: str, message: str, subject: str = ''):
     :param message: Сообщение
     :return:
     """
-    print(f'Sendinng message "{subject}" to {address}...')
     send_email.send_text_message(recipient=address, message=message, subject=subject)
-    print(f'Message "{subject}" to {address} has been sent.')
 
 
 @dramatiq.actor
@@ -49,7 +48,7 @@ def send_sms(phone: str, message: str):
 
 
 @dramatiq.actor
-def send_web_notification(user, message):
+def send_web_notification(webscokets: ConnectionManager, subject: str, text: str):
     """
     Отправляет push-уведомление пользователю
 
@@ -57,6 +56,4 @@ def send_web_notification(user, message):
     :param message: Сообщение
     :return:
     """
-    result = 'NOT IMPLEMENTED'
-
-    return result
+    webscokets.broadcast(f'"{subject}": "{text}"')

@@ -19,14 +19,14 @@ def get_random_timezone() -> str:
 
 
 _USERS = [
-    UserDBSchema(
-        id=i,
-        name=f'User #{i}',
-        email='max.belichenko@mail.ru',
-        phone='79123456789',
-        timezone=get_random_timezone()
-    )
-    for i in range(3)
+    # UserDBSchema(
+    #     id=i,
+    #     name=f'User #{i}',
+    #     email='max.belichenko@mail.ru',
+    #     phone='79123456789',
+    #     timezone=get_random_timezone()
+    # )
+    # for i in range(3)
 ]
 _USERS.append(
     UserDBSchema(
@@ -55,6 +55,16 @@ _USERS.append(
         timezone='Asia/Vladivostok'
     )
 )
+_USERS.append(
+    UserDBSchema(
+        id=7,
+        name=f'Mikhail from Moscow',
+        email='max.belichenko@mail.ru',
+        phone='79123456789',
+        timezone='Europe/Moscow'
+    )
+)
+
 
 def get_user_list():
     """

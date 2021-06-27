@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI, Depends, WebSocket
+from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
@@ -37,13 +37,11 @@ scheduler.start()
 # Создать глобальный сериализуемый запускаемый объект для планировщика APScheduler
 
 def send_by_email_callable(*args, **kwargs):
-    """
-    Запускает
-    :param args:
-    :param kwargs:
-    :return:
-    """
     workers.send_by_email.send(*args, **kwargs)
+
+
+def send_by_websocket_callable(*args, **kwargs):
+    workers.send_web_notification.send(*args, **kwargs)
 
 
 # Создать базу данных и структуру таблиц (без миграций)
@@ -114,27 +112,40 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
             pass
 
     # Разослать сообщения пользователям через WebSockets
+    send_date = message.send_date
 
-    await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
+    scheduler.add_job(
+        send_by_websocket_callable,
+        'date',                     # Запустить выполнение в указанное время и дату
+        run_date=send_date,
+        args=(websockets_manager, message.subject, message.text),
+        misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
+    )
+
+    # await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
 
 
 @app.get('/')
 async def get():
+    """
+    Возвращает HTML-страницу для подключения через WebSocket.
+
+    :return:
+    """
     return HTMLResponse(html.index_html)
-
-
-# @app.websocket('/ws')
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     while True:
-#         data = await websocket.receive_text()
-#         await websocket.send_text(f"Message text was: {data}")
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    print(f'Received new connection from {websocket}')
+    """
+    Создаёт и обслуживает подключение по WebSocket.
+
+    :param websocket:
+    :return:
+    """
     await websockets_manager.connect(websocket)
     while True:
-        text = await websocket.receive_text()
-        print(f'Received some text from {websocket}: "{text}"')
+        try:
+            await websocket.receive()
+        except WebSocketDisconnect:
+            websockets_manager.disconnect(websocket)
