@@ -133,4 +133,8 @@ async def get():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    print(f'Received new connection from {websocket}')
     await websockets_manager.connect(websocket)
+    while True:
+        text = await websocket.receive_text()
+        print(f'Received some text from {websocket}: "{text}"')
