@@ -30,6 +30,7 @@ def send_by_email(address: str, message: str, subject: str = ''):
     :param message: Сообщение
     :return:
     """
+    print('Broadcasting to emails...')
     send_email.send_text_message(recipient=address, message=message, subject=subject)
 
 

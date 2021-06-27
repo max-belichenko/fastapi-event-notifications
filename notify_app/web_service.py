@@ -113,7 +113,7 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
 
     # Разослать сообщения пользователям через WebSockets
     send_date = message.send_date
-
+    print('Scheduling websocket broadcast:')
     scheduler.add_job(
         send_by_websocket_callable,
         'date',                     # Запустить выполнение в указанное время и дату
@@ -121,6 +121,7 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
         args=(websockets_manager, message.subject, message.text),
         misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
     )
+    scheduler.print_jobs()
 
     # await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
 
