@@ -51,10 +51,11 @@ def send_sms(phone: str, message: str):
 @dramatiq.actor
 def send_web_notification(webscokets: ConnectionManager, subject: str, text: str):
     """
-    Отправляет push-уведомление пользователю
+    Отправляет push-уведомление пользователям.
 
-    :param user:    Пользователь с активной сессией
-    :param message: Сообщение
+    :param webscokets:
+    :param subject:
+    :param text:
     :return:
     """
     print('Broadcasting to websockets...')

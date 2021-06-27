@@ -40,10 +40,6 @@ def send_by_email_callable(*args, **kwargs):
     workers.send_by_email.send(*args, **kwargs)
 
 
-def send_by_websocket_callable(*args, **kwargs):
-    workers.send_web_notification.send(websockets_manager, *args, **kwargs)
-
-
 # Создать базу данных и структуру таблиц (без миграций)
 
 Base.metadata.create_all(bind=engine)
@@ -112,18 +108,9 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
             pass
 
     # Разослать сообщения пользователям через WebSockets
-    send_date = message.send_date
-    print('Scheduling websocket broadcast:')
-    scheduler.add_job(
-        send_by_websocket_callable,
-        'date',                     # Запустить выполнение в указанное время и дату
-        run_date=send_date,
-        args=(message.subject, message.text),
-        misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
-    )
-    scheduler.print_jobs()
 
     # await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
+    await workers.send_web_notification.send(websockets_manager, message.subject, message.text)
 
 
 @app.get('/')
