@@ -114,7 +114,7 @@ async def get():
     return HTMLResponse(html.index_html)
 
 
-@app.websocket("/ws")
+@app.websocket('/ws')
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
