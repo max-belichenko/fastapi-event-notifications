@@ -109,8 +109,7 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
 
     # Разослать сообщения пользователям через WebSockets
 
-    # await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
-    await workers.send_web_notification.send(websockets_manager, message.subject, message.text)
+    await websockets_manager.broadcast(f'"{message.subject}": "{message.text}"')
 
 
 @app.get('/')

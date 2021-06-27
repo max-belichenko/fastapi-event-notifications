@@ -30,7 +30,6 @@ def send_by_email(address: str, message: str, subject: str = ''):
     :param message: Сообщение
     :return:
     """
-    print('Broadcasting to emails...')
     send_email.send_text_message(recipient=address, message=message, subject=subject)
 
 
@@ -43,9 +42,7 @@ def send_sms(phone: str, message: str):
     :param message: Сообщение
     :return:
     """
-    result = 'NOT IMPLEMENTED'
-
-    return result
+    raise NotImplementedError('Функция отправки SMS-сообщения не реализована')
 
 
 @dramatiq.actor
@@ -58,5 +55,4 @@ def send_web_notification(subject: str, text: str):
     :param text:
     :return:
     """
-    print('Broadcasting to websockets...')
-    websockets_manager.broadcast(f'"{subject}": "{text}"')
+    raise NotImplementedError('Функция отправки push-уведомления не реализована')
