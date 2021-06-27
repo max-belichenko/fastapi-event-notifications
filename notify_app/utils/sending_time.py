@@ -61,10 +61,17 @@ def get_send_dt_for_user(send_date, user_timezone, allowed_period: Tuple[datetim
     # Установить время отправки сообщения в соответствии с разрешённым временным интервалом
 
     if user_dt.time() < allowed_period[0]:
-        send_dt_for_user = user_dt.replace(hour=allowed_period[0], minute=0).astimezone(send_date.tzinfo)
+        send_dt_for_user = user_dt.replace(
+            hour=allowed_period[0].hour,
+            minute=0
+        ).astimezone(send_date.tzinfo)
         print('Время отправки ранее разрешённого временного интервала')
     elif user_dt.time() > allowed_period[1]:
-        send_dt_for_user = user_dt.replace(day=user_dt.day+1, hour=allowed_period[0], minute=0).astimezone(send_date.tzinfo)
+        send_dt_for_user = user_dt.replace(
+            day=user_dt.day+1,
+            hour=allowed_period[0].hour,
+            minute=0
+        ).astimezone(send_date.tzinfo)
         print('Время отправки позднее разрешённого временного интервала')
     else:
         send_dt_for_user = send_date
