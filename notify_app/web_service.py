@@ -147,6 +147,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websockets_manager.connect(websocket)
     while True:
         try:
-            await websocket.receive()
+            data = await websocket.receive()
+            await websockets_manager.broadcast(f"Client #{websocket} says: {data}")
         except WebSocketDisconnect:
             websockets_manager.disconnect(websocket)
