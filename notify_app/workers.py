@@ -4,8 +4,13 @@ from dramatiq.results.backends import RedisBackend
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.results import Results
 
-from notify_app import config
+from notify_app import config, app_logger
 from notify_app.utils import send_email
+
+
+# Get logger
+
+logger = app_logger.get_logger(__name__)
 
 
 # Set up Dramatiq
@@ -14,6 +19,7 @@ result_backend = RedisBackend()
 redis_broker = RedisBroker(host=config.REDIS_HOST, port=config.REDIS_PORT)
 redis_broker.add_middleware(Results(backend=result_backend))
 dramatiq.set_broker(redis_broker)
+logger.debug('Dramatiq has been set up')
 
 
 @dramatiq.actor
@@ -29,6 +35,7 @@ def send_by_email(address: str, message: str, subject: str = ''):
     :param message: Сообщение
     :return:
     """
+    logger.debug(f'Sending email to {address}: Subject = "{subject}" Message = "{message}"')
     send_email.send_text_message(recipient=address, message=message, subject=subject)
 
 
