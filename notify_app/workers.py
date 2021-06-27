@@ -6,7 +6,6 @@ from dramatiq.results import Results
 
 from notify_app import config
 from notify_app.utils import send_email
-from notify_app.web_service import websockets_manager
 
 
 # Set up Dramatiq
