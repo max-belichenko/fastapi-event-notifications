@@ -16,8 +16,8 @@ from notify_app.utils import websockets
 
 # Создать и настроить логгер
 
-logging.basicConfig()
-logging.getLogger('apscheduler').setLevel(logging.DEBUG)
+# logging.basicConfig()
+# logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 logger = app_logger.get_logger(__name__)
 
