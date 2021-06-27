@@ -1,6 +1,17 @@
-import pytz
+import datetime
+
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+
+
+# Send message configuration
+
+SERVER_TIMEZONE_STR = 'Europe/Moscow'
+
+SEND_ALLOWED_PERIOD = (
+    datetime.time(9, 0),    # Начало рассылки в 9:00
+    datetime.time(21, 0),   # Окончание рассылки в 21:00
+)
 
 
 # Redis server configuration
@@ -37,6 +48,5 @@ SCHEDULER_CONFIG = {
         'coalesce': False,
         'max_instances': 3
     },
-    'timezone': pytz.utc,   # Use UTC timezones for scheduling
+    # 'timezone': pytz.utc,   # Use UTC timezones for scheduling
 }
-#

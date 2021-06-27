@@ -1,4 +1,5 @@
 import dramatiq
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from fastapi import FastAPI, Depends
@@ -10,7 +11,7 @@ from notify_app import schemas, workers, config
 from notify_app.crud import create_message
 from notify_app.mock import users
 from notify_app.database import Base, engine, SessionLocal
-from notify_app.utils import send_email
+from notify_app.utils.sending_time import get_send_dt_for_user, add_timezone_if_empty
 
 
 # Создать и настроить логгер
@@ -93,10 +94,16 @@ async def start_dramatiq_action(message: schemas.MessageSchema, db: Session = De
         if not user.email:
             continue
 
+        send_date = get_send_dt_for_user(
+            send_date=add_timezone_if_empty(message.send_date, config.SERVER_TIMEZONE_STR),
+            user_timezone=user.timezone,
+            allowed_period=config.SEND_ALLOWED_PERIOD
+        )
+
         scheduler.add_job(
             send_by_email_callable,
             'date',                     # Запустить выполнение в указанное время и дату
-            run_date=message.send_date,
+            run_date=send_date,
             args=(user.email, message.text, f'{message.subject} for {user.name}'),
             misfire_grace_time=None,    # Запустить выполнение, если время выполнения было пропущено (без ограничения срока давности)
         )
